@@ -1,0 +1,331 @@
+substitutions:
+  # global variable
+  line_voltage: "120.0"
+
+esphome:
+  name: home-energy-monitor
+  friendly_name: home-energy-monitor
+
+esp32:
+  board: esp32-s3-devkitm-1
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "generate something new"
+
+ota:
+  - platform: esphome
+    password: "generate something new"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Home-Energy-Monitor"
+    password: "generate something new"
+
+captive_portal:
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+# Currrent transformer configuration
+sensor:
+  # ct_clamp platforms
+  #####################
+  - platform: adc
+    pin: GPIO1
+    id: adc_1
+    update_interval: 1s
+    attenuation: auto
+
+  - platform: adc
+    pin: GPIO2
+    id: adc_2
+    update_interval: 1s
+    attenuation: auto
+  ######################################################
+  # GPIO3 is a strapping pin, so I have disabled it in this yaml
+  ######################################################
+  # - platform: adc
+  #   pin: GPIO3
+  #   id: adc_3
+  #   update_interval: 1s
+  #   attenuation: auto
+
+  - platform: adc
+    pin: GPIO4
+    id: adc_4
+    update_interval: 1s
+    attenuation: auto
+
+  - platform: adc
+    pin: GPIO5
+    id: adc_5
+    update_interval: 1s
+    attenuation: auto
+  
+  - platform: adc
+    pin: GPIO6
+    id: adc_6
+    update_interval: 1s
+    attenuation: auto
+  
+  - platform: adc
+    pin: GPIO7
+    id: adc_7
+    update_interval: 1s
+    attenuation: auto
+
+  - platform: adc
+    pin: GPIO8
+    id: adc_8
+    update_interval: 1s
+    attenuation: auto
+
+  - platform: adc
+    pin: GPIO9
+    id: adc_9
+    update_interval: 1s
+    attenuation: auto
+
+  # ct_clamp platforms
+  #####################
+  - platform: ct_clamp
+    sensor: adc_1
+    name: "Line 1 Current"
+    id: line1_current
+    update_interval: 1s
+    filters: &main_ct_filter      
+      calibrate_linear:          
+        - 0 -> 0 # Raw ADC value of 0 maps to 0A
+        - 0.195 -> 10.00 # Raw ADC value of 0.195 maps to 10A
+        - 0.795 -> 40.00 # Raw ADC value of 0.795 maps to 40A
+
+  - platform: ct_clamp
+    sensor: adc_2
+    name: "Line 2 Current"
+    id: line2_current
+    update_interval: 1s
+    filters: *main_ct_filter # Reuse main calibration
+          
+  # - platform: ct_clamp
+  #   sensor: adc_3
+  #   name: "Refrigerator Current"
+  #   id: circuit3_current
+  #   update_interval: 1s
+  #   filters: &branch_ct_filter # Define anchor for Branch CTs        
+  #     calibrate_linear:          
+  #       - 0 -> 0 # Raw ADC value of 0 maps to 0A
+  #       - 0.101 -> 10.00 # Raw ADC value of 0.101 maps to 10A
+          
+  - platform: ct_clamp
+    sensor: adc_4
+    name: "circuit4 Current"
+    id: circuit4_current
+    update_interval: 1s
+    filters: &branch_ct_filter # Define anchor for Branch CTs        
+      calibrate_linear:          
+        - 0 -> 0 # Raw ADC value of 0 maps to 0A
+        - 0.101 -> 10.00 # Raw ADC value of 0.101 maps to 10A
+          
+  - platform: ct_clamp
+    sensor: adc_5
+    name: "circuit5 Current"
+    id: circuit5_current
+    update_interval: 1s
+    filters: *branch_ct_filter
+          
+  - platform: ct_clamp
+    sensor: adc_6
+    name: "circuit6 Current"
+    id: circuit6_current
+    update_interval: 1s
+    filters: *branch_ct_filter
+          
+  - platform: ct_clamp
+    sensor: adc_7
+    name: "circuit7 Current"
+    id: circuit7_current
+    update_interval: 1s
+    filters: *branch_ct_filter
+          
+  - platform: ct_clamp
+    sensor: adc_8
+    name: "circuit8 Current"
+    id: circuit8_current
+    update_interval: 1s
+    filters: *branch_ct_filter
+          
+  - platform: ct_clamp
+    sensor: adc_9
+    name: "Circuit 9 Current"
+    id: circuit9_current
+    update_interval: 1s
+    filters: *branch_ct_filter
+
+
+# Total Power (assumes 240V service)
+  - platform: template
+    name: "Total Power"
+    id: total_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0    
+    update_interval: 1s
+    lambda: return (id(line1_current).state + id(line2_current).state) * ${line_voltage};
+
+  # - platform: template
+  #   name: "Refrigerator Power"
+  #   id: circuit3_power
+  #   unit_of_measurement: W
+  #   device_class: power
+  #   state_class: measurement
+  #   accuracy_decimals: 0    
+  #   update_interval: 1s
+  #   lambda: return id(circuit3_current).state * ${line_voltage};
+
+  - platform: template
+    name: "circuit4 Power"
+    id: circuit4_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0    
+    update_interval: 1s
+    lambda: return id(circuit4_current).state * 2 * ${line_voltage};  # 240V circuit
+
+  - platform: template
+    name: "circuit5 Power"
+    id: circuit5_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0    
+    update_interval: 1s
+    lambda: return id(circuit5_current).state * 2 * ${line_voltage};  # 240V circuit
+
+  - platform: template
+    name: "circuit6 Power"
+    id: circuit6_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0    
+    update_interval: 1s
+    lambda: return id(circuit6_current).state * ${line_voltage};  
+
+  - platform: template
+    name: "circuit7 Power"
+    id: circuit7_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0    
+    update_interval: 1s
+    lambda: return id(circuit7_current).state * 2 * ${line_voltage};  # 240V circuit
+
+  - platform: template
+    name: "circuit8 Power"
+    id: circuit8_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0    
+    update_interval: 1s
+    lambda: return id(circuit8_current).state * ${line_voltage};  
+
+  - platform: template
+    name: "Circuit 9 Power"
+    id: circuit9_power
+    unit_of_measurement: W
+    device_class: power
+    state_class: measurement
+    accuracy_decimals: 0    
+    update_interval: 1s
+    lambda: return id(circuit9_current).state * ${line_voltage};  
+
+  # Total Energy (integrates power over time)
+  - platform: total_daily_energy
+    name: "Total Energy Today"
+    power_id: total_power
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+    filters:
+      - multiply: 0.001  # Convert Wh to kWh
+
+  # - platform: total_daily_energy
+  #   name: "Refridgerator Energy Today"
+  #   power_id: circuit3_power
+  #   unit_of_measurement: kWh
+  #   device_class: energy
+  #   state_class: total_increasing
+  #   filters:
+  #     - multiply: 0.001  # Convert Wh to kWh
+
+  - platform: total_daily_energy
+    name: "circuit4 Energy Today"
+    power_id: circuit4_power
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+    filters:
+      - multiply: 0.001  # Convert Wh to kWh
+
+  - platform: total_daily_energy
+    name: "circuit5 Energy Today"
+    power_id: circuit5_power
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+    filters:
+      - multiply: 0.001  # Convert Wh to kWh
+
+  - platform: total_daily_energy
+    name: "circuit6 Energy Today"
+    power_id: circuit6_power
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+    filters:
+      - multiply: 0.001  # Convert Wh to kWh
+
+  - platform: total_daily_energy
+    name: "circuit7 Energy Today"
+    power_id: circuit7_power
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+    filters:
+      - multiply: 0.001  # Convert Wh to kWh
+
+  - platform: total_daily_energy
+    name: "circuit8 Energy Today"
+    power_id: circuit8_power
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+    filters:
+      - multiply: 0.001  # Convert Wh to kWh
+
+  - platform: total_daily_energy
+    name: "Circuit 9 Energy Today"
+    power_id: circuit9_power
+    unit_of_measurement: kWh
+    device_class: energy
+    state_class: total_increasing
+    filters:
+      - multiply: 0.001  # Convert Wh to kWh
+    
+    
