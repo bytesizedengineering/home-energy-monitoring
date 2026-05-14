@@ -6,7 +6,7 @@
 ## 🚀 Overview  
 This project provides a cost-effective way to monitor real-time electricity usage across multiple circuits in your home. By using non-invasive Current Transformer (CT) clamps, the system measures magnetic induction to calculate amperage without cutting into your home's wiring.
 
-This project was featured on my [YouTube channel](https://www.youtube.com/@ByteSizedEngineering) and developed in collaboration with [DigiKey](https://www.digikey.com).
+This project was featured on the [DigiKey YouTube channel](https://www.youtube.com/@digikey) in [this video](#).
 
 ## 📂 Repository Structure  
 ```
