@@ -6,7 +6,7 @@
 ## 🚀 Overview  
 This project provides a cost-effective way to monitor real-time electricity usage across multiple circuits in your home. By using non-invasive Current Transformer (CT) clamps, the system measures magnetic induction to calculate amperage without cutting into your home's wiring.
 
-This project was featured on the [DigiKey YouTube channel](https://www.youtube.com/@digikey) in [this video](#).
+This project was featured on the [DigiKey YouTube channel](https://www.youtube.com/@digikey) in [this video](https://youtu.be/54pZV8P7hGM?si=jUmZ82UDNDB7HiG6).
 
 ## 📂 Repository Structure  
 ```
@@ -44,8 +44,8 @@ The system uses **ESPHome** for easy integration with Home Assistant.
 | Connectors       | 3.5mm TRS Audio Jacks (PCB Mount)              | [DigiKey](https://www.digikey.com/en/products/detail/same-sky-formerly-cui-devices/SJ-3523-SMT-TR/281297?s=N4IgTCBcDaIMIAUC0BmArGFBlAUnAKkgHIAiIAugL5A)                |
 
 ## 🎥 Video & More Info  
-📺 Watch the full build and calibration process: [YouTube Video](#)  
-📄 Read the technical breakdown: [Article on Maker.io](https://www.digikey.com/en/maker)
+📺 Watch the full build and calibration process: [YouTube Video](https://youtu.be/54pZV8P7hGM?si=jUmZ82UDNDB7HiG6)  
+📄 Read the technical breakdown: [Article on Maker.io](https://www.digikey.com/en/maker/projects/build-a-diy-whole-home-energy-monitor-with-esphome-and-home-assistant/be84610c06894f87a0f75bd443de7992)
 
 > [!CAUTION]
 > **Safety Warning**: This project involves installing sensors inside a main utility panel. This should only be performed by individuals comfortable working around high voltage or a licensed electrician.
